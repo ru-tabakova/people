@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td,
+    th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: yellow;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    .fn {
+        font-weight: bold;
+    }
+
+    .button {
+        margin-top: 20px;
+        width: 100px;
+        height: 40px;
+        background: yellow;
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .idcolumn {
+        display: none;
+    }
+
+    #fname {
+        width: 100%;
+        border-style: none;
+    }
+
+    #newSurname {
+        width: 100%;
+        border-style: none;
+    }
+
+    #newEmail {
+        width: 100%;
+        border-style: none;
+    }
+
+    tr td:last-child {
+        width: 1%;
+        white-space: nowrap;
+    }
+
+    td {
+        width: 1%;
+    }
+
+    .errors {
+        background: red;
+        color: white;
+    }
+</style>
+
+<body>
+    <div class="errors">&nbsp;
+    </div>
+    <table class="GAGA" style="width: 100%;">
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+
+    </table>
+    <button class="button" type="button" id="addPerson">Add Person</button>
+
+
+</body>
+
+<script src="jquery-3.5.0.js">
+    </script>
+
+<script type="text/javascript">
+
+    $.get("https://localhost:44370/api/people", function (data) {
+        data.forEach(element => {
+
+            var row = "<tr><td class='fn'>" + element.name +
+                "</td><td>" + element.surname + "</td><td style=';text-decoration: underline'>" +
+                element.email + "</td><td><div class='idcolumn'>" + element.id + "</div>" +
+                "<button class='button' type='button' id='delete' > Delete </button></td>" +
+                "</tr>";
+
+            $('.GAGA').append(row);
+        });
+    });
+
+    $("#addPerson").click(function () {
+
+
+        var row = "<tr><td class='fn'><input type='text' id='fname' name='fname'></td>" +
+            "<td><input type='text' id='newSurname' name='newSurname'></td>" +
+            "<td><input type='text' id='newEmail' name='newEmail'></td>" +
+            "<td><button class='button' type='button' id='save' > Save </button></td></tr>";
+        +
+
+            $('.GAGA').append(row);
+    });
+
+
+    $(document).on('click', "#delete", function () {
+
+        var idForDelete = $(this).siblings('div').text();
+
+        $.ajax({
+            type: "DELETE",
+            contentType: "application/json; charset=utf-8",
+            url: "https://localhost:44370/api/people/" + idForDelete,
+            dataType: "json",
+            success: function (msg) {
+                $(".GAGA tr:gt(0)").remove();
+                $.get("https://localhost:44370/api/people", function (data) {
+                   
+                    data.forEach(element => {
+
+                        var row = "<tr><td class='fn'>" + element.name +
+                            "</td><td>" + element.surname + "</td><td style=';text-decoration: underline'>" +
+                            element.email + "</td><td><div class='idcolumn'>" + element.id + "</div>" +
+                            "<button class='button' type='button' id='delete' > Delete </button></td>" +
+                            "</tr>";
+
+                        $('.GAGA').append(row);
+                    });
+                });
+            },
+            error: function (req, status, error) {
+                //alert(error);
+            }
+        });
+    });
+
+    $(document).on('click', "#save", function () {
+
+        let fn = $('#fname').val();
+        let sn = $('#newSurname').val();
+        let em = $('#newEmail').val();
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: "https://localhost:44370/api/people",
+            data: JSON.stringify({ name: fn, surname: sn, email: em }),
+            dataType: "json",
+            success: function (msg) {
+                $(".GAGA tr:gt(0)").remove();
+                $.get("https://localhost:44370/api/people", function (data) {
+                   
+                    data.forEach(element => {
+
+                        var row = "<tr><td class='fn'>" + element.name +
+                            "</td><td>" + element.surname + "</td><td style=';text-decoration: underline'>" +
+                            element.email + "</td><td><div class='idcolumn'>" + element.id + "</div>" +
+                            "<button class='button' type='button' id='delete' > Delete </button></td>" +
+                            "</tr>";
+
+                        $('.GAGA').append(row);
+                    });
+                });
+            },
+            error: function (req, status, error) {
+                let msg = Object.values(req.responseJSON.errors).join('<br/>');
+                $('.errors').html(msg);
+            }
+        });
+
+    });
+
+
+</script>
+
+</html>
