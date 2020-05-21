@@ -97,6 +97,8 @@
 
 <script type="text/javascript">
 
+    $('.errors').hide();
+
     $.get("https://localhost:44370/api/people", function (data) {
         data.forEach(element => {
 
@@ -167,6 +169,7 @@
             data: JSON.stringify({ name: fn, surname: sn, email: em }),
             dataType: "json",
             success: function (msg) {
+                $('.errors').hide();
                 $(".GAGA tr:gt(0)").remove();
                 $.get("https://localhost:44370/api/people", function (data) {
                    
@@ -184,6 +187,7 @@
             },
             error: function (req, status, error) {
                 let msg = Object.values(req.responseJSON.errors).join('<br/>');
+                $('.errors').show();
                 $('.errors').html(msg);
             }
         });
